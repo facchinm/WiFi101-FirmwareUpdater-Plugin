@@ -28,6 +28,7 @@
 package cc.arduino.plugins.wifi101;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
@@ -35,9 +36,11 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -70,6 +73,7 @@ public class UpdaterJFrame extends JFrame {
 
 	private JButton uploadCertificatesButton;
 	private JButton addCertificateButton;
+	private JButton addLocalCertificateButton;
 	private JButton updateFirmwareButton;
 	private JButton testConnectionButton;
 
@@ -225,12 +229,12 @@ public class UpdaterJFrame extends JFrame {
 
 		panel_2 = new JPanel();
 		panel_2.setBorder(new TitledBorder(null, "3. Update SSL root certificates", TitledBorder.LEFT, TitledBorder.TOP, null, null));
-		panel_2.setMinimumSize(new Dimension(500, 200));
+		panel_2.setMinimumSize(new Dimension(500, 220));
 		GridBagConstraints gbc_panel_2 = new GridBagConstraints();
 		gbc_panel_2.insets = new Insets(5, 5, 0, 5);
 		gbc_panel_2.fill = GridBagConstraints.BOTH;
 		gbc_panel_2.gridx = 0;
-		gbc_panel_2.gridy = 2;
+		gbc_panel_2.gridy = 3;
 		contentPane.add(panel_2, gbc_panel_2);
 		GridBagLayout gbl_panel_2 = new GridBagLayout();
 		gbl_panel_2.columnWidths = new int[]{0, 0};
@@ -272,7 +276,7 @@ public class UpdaterJFrame extends JFrame {
 		});
 		JScrollPane scrollWebsites = new JScrollPane(certSelector);
 		GridBagConstraints gbc_certSelector = new GridBagConstraints();
-		gbc_certSelector.gridheight = 2;
+		gbc_certSelector.gridheight = 3;
 		gbc_certSelector.insets = new Insets(0, 0, 5, 5);
 		gbc_certSelector.fill = GridBagConstraints.BOTH;
 		gbc_certSelector.gridx = 0;
@@ -306,6 +310,19 @@ public class UpdaterJFrame extends JFrame {
 		gbc_removeCertificateButton.gridy = 2;
 		panel_2.add(removeCertificateButton, gbc_removeCertificateButton);
 
+		addLocalCertificateButton = new JButton("Add certificate file");
+		addLocalCertificateButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				addLocalFile(UpdaterJFrame.this);
+			}
+		});
+		GridBagConstraints gbc_addLocalCertificateButton = new GridBagConstraints();
+		gbc_addLocalCertificateButton.insets = new Insets(0, 0, 5, 0);
+		gbc_addLocalCertificateButton.fill = GridBagConstraints.HORIZONTAL;
+		gbc_addLocalCertificateButton.gridx = 1;
+		gbc_addLocalCertificateButton.gridy = 3;
+		panel_2.add(addLocalCertificateButton, gbc_addLocalCertificateButton);
+
 		uploadCertificatesButton = new JButton("Upload Certificates to WiFi module");
 		uploadCertificatesButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -316,7 +333,7 @@ public class UpdaterJFrame extends JFrame {
 		gbc_uploadCertificatesButton.gridwidth = 2;
 		gbc_uploadCertificatesButton.insets = new Insets(0, 0, 0, 5);
 		gbc_uploadCertificatesButton.gridx = 0;
-		gbc_uploadCertificatesButton.gridy = 3;
+		gbc_uploadCertificatesButton.gridy = 4;
 		panel_2.add(uploadCertificatesButton, gbc_uploadCertificatesButton);
 
 		updateProgressBar = new JProgressBar();
@@ -324,7 +341,7 @@ public class UpdaterJFrame extends JFrame {
 		gbc_updateProgressBar.insets = new Insets(5, 5, 5, 5);
 		gbc_updateProgressBar.fill = GridBagConstraints.HORIZONTAL;
 		gbc_updateProgressBar.gridx = 0;
-		gbc_updateProgressBar.gridy = 3;
+		gbc_updateProgressBar.gridy = 4;
 		contentPane.add(updateProgressBar, gbc_updateProgressBar);
 	}
 
@@ -333,6 +350,7 @@ public class UpdaterJFrame extends JFrame {
 		certSelector.setVisible(visible);
 		uploadCertificatesButton.setVisible(visible);
 		addCertificateButton.setVisible(visible);
+		addLocalCertificateButton.setVisible(visible);
 		removeCertificateButton.setVisible(visible);
 		textArea.setVisible(visible);
 		textFwNot.setVisible(!visible);
@@ -341,6 +359,7 @@ public class UpdaterJFrame extends JFrame {
 	protected void setEnabledCommand(boolean state) {
 		uploadCertificatesButton.setEnabled(state);
 		addCertificateButton.setEnabled(state);
+		addLocalCertificateButton.setEnabled(state);
 		testConnectionButton.setEnabled(state);
 		updateFirmwareButton.setEnabled(state);
 		firmwareSelector.setEnabled(state);
@@ -359,6 +378,10 @@ public class UpdaterJFrame extends JFrame {
 		// To be overridden
 	}
 
+	protected void addLocalFile(Component c) {
+		// To be overridden
+	}
+	
 	protected void updateFirmware() {
 		// To be overridden
 	}

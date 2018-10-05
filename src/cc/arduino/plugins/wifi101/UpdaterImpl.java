@@ -35,11 +35,13 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 
+import java.awt.Component;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import cc.arduino.packages.BoardPort;
@@ -205,6 +207,16 @@ public class UpdaterImpl extends UpdaterJFrame {
 	}
 
 	@Override
+	protected void addLocalFile(Component c) {
+		JFileChooser fc = new JFileChooser();
+		int returnVal = fc.showOpenDialog(c);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            websites.add("file://" + file.getAbsolutePath());
+		}
+	}
+	
+	@Override
 	protected void addCertificate() {
 		String website = (String) JOptionPane.showInputDialog(this, "Enter the website to fetch SSL certificate:",
 		    "Add SSL certificate from website", JOptionPane.QUESTION_MESSAGE);
@@ -224,7 +236,7 @@ public class UpdaterImpl extends UpdaterJFrame {
 		}
 		if (website.contains("/")) {
 			JOptionPane.showMessageDialog(UpdaterImpl.this,
-			    "Error: please use enter the addres using the format:\nwww.example.com:443", "Invalid URL error.",
+			    "Please enter the address using the format:\nwww.example.com:443", "Invalid URL error.",
 			    JOptionPane.ERROR_MESSAGE);
 			return;
 		}

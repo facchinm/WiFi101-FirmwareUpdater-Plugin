@@ -159,14 +159,25 @@ public class WINCFlasher extends Flasher {
 		int count = 0;
 		for (String website : websites) {
 			URL url;
+			boolean local = false;
 			try {
 				url = new URL(website);
 			} catch (MalformedURLException e1) {
-				url = new URL("https://" + website);
+				if (new File(website).isFile()) {
+					url = new URL("file://" + website);
+					local = true;
+				} else {
+					url = new URL("https://" + website);
+				}
 			}
 
 			progress(30 + 20 * count / websites.size(), "Downloading certificate from " + website + "...");
-			Certificate[] certificates = SSLCertDownloader.retrieveFromURL(url);
+			Certificate[] certificates;
+			if (local) {
+				certificates = SSLCertDownloader.retrieveFromFile(url);
+			} else {
+				certificates = SSLCertDownloader.retrieveFromURL(url);
+			}
 
 			// Pick the latest certificate (that should be the root cert)
 			X509Certificate x509 = (X509Certificate) certificates[certificates.length - 1];

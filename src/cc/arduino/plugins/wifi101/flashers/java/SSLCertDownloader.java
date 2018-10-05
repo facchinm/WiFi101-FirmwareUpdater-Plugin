@@ -27,14 +27,17 @@
  */
 package cc.arduino.plugins.wifi101.flashers.java;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -95,5 +98,14 @@ public class SSLCertDownloader {
 		Certificate[] certificates = connection.getServerCertificates();
 		connection.disconnect();
 		return certificates;
+	}
+
+	public static Certificate[] retrieveFromFile(URL url) 
+			throws CertificateException, FileNotFoundException {
+	    CertificateFactory fact = CertificateFactory.getInstance("X.509");
+	    FileInputStream is = new FileInputStream (url.toString());
+	    X509Certificate[] cer = new X509Certificate[1];
+	    cer[0] = (X509Certificate) fact.generateCertificate(is);
+	    return cer;
 	}
 }
