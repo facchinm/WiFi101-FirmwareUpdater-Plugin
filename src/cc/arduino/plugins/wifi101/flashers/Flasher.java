@@ -27,39 +27,37 @@
  */
 package cc.arduino.plugins.wifi101.flashers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Arrays;
-
-import javax.swing.JMenuItem;
-import javax.swing.JProgressBar;
-import javax.swing.JRadioButtonMenuItem;
-
-import cc.arduino.packages.BoardPort;
-import cc.arduino.plugins.wifi101.flashers.java.FlasherSerialClient;
-import processing.app.Editor;
-import processing.app.debug.TargetBoard;
-import processing.app.packages.LibraryList;
-import processing.app.packages.UserLibrary;
-import processing.app.packages.UserLibraryFolder.Location;
-import processing.app.Base;
-import processing.app.BaseNoGui;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
-import java.util.*;
+import static processing.app.I18n.tr;
 
 import java.io.ByteArrayOutputStream;
-import java.io.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
-import org.apache.commons.lang3.StringUtils;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JProgressBar;
+
+import org.apache.commons.lang3.StringUtils;
+
+import cc.arduino.Compiler;
+import cc.arduino.UploaderUtils;
+import cc.arduino.packages.BoardPort;
+import cc.arduino.plugins.wifi101.UpdaterImpl;
+import cc.arduino.plugins.wifi101.UpdaterJFrame;
+import cc.arduino.plugins.wifi101.flashers.java.FlasherSerialClient;
+import processing.app.Base;
+import processing.app.BaseNoGui;
+import processing.app.I18n;
+import processing.app.PreferencesData;
+import processing.app.Sketch;
+import processing.app.debug.TargetBoard;
+import processing.app.debug.TargetPackage;
+import processing.app.debug.TargetPlatform;
+import processing.app.packages.LibraryList;
+import processing.app.packages.UserLibrary;
 
 public class Flasher {
 
@@ -130,9 +128,43 @@ public class Flasher {
 		  }
 		}
 		if (firmwareUpdaterExamplePath != "" && port != null) {
+	
 			BaseNoGui.selectSerialPort(port.getAddress());
+			
+			// Search all packages for this f***ing name
+			String name = port.getBoardName();
+
+			TargetBoard targetBoard = null;
+		    for (TargetPackage targetPackage : BaseNoGui.packages.values()) {
+		      for (TargetPlatform targetPlatform : targetPackage.getPlatforms().values()) {
+		        for (TargetBoard board : targetPlatform.getBoards().values()) {
+		        	System.out.println(board.getName());
+		          if (name.equals(board.getName())) {
+		            	targetBoard = board;
+		          }
+		        }
+		      }
+		    }
+
+	        BaseNoGui.selectBoard(targetBoard);
 			Base.INSTANCE.onBoardOrPortChange();
-			Base.INSTANCE.handleOpen(new File(firmwareUpdaterExamplePath));
+			//Base.INSTANCE.handleOpen(new File(firmwareUpdaterExamplePath));
+
+			setProgressBar(UpdaterImpl.getUpdateProgressBar());
+
+			progress(10, "Compling file...");
+
+			File sketchFile = BaseNoGui.absoluteFile(firmwareUpdaterExamplePath);
+			Sketch sketch = new Sketch(sketchFile);
+	        String outputFile = new Compiler(sketch).build(progress -> {}, false);
+
+	        progress(50, "Uploading file...");
+
+			UploaderUtils uploader = new UploaderUtils();
+	        List<String> warnings = new ArrayList<>();
+	        boolean res = uploader.upload(sketch, null, outputFile,	false, false, warnings);
+
+	        progress(100, "Updater uploaded!");
 		}
 	}
 

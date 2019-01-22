@@ -60,7 +60,7 @@ public class UpdaterJFrame extends JFrame {
 	private JList<String> serialPortList;
 	private JComboBox<Flasher> firmwareSelector;
 
-	private JProgressBar updateProgressBar;
+	private static JProgressBar updateProgressBar;
 	private JButton removeCertificateButton;
 	private JList<String> certSelector;
 	private JPanel panel_2;
@@ -173,7 +173,7 @@ public class UpdaterJFrame extends JFrame {
 		gbc_testConnectionButton.gridy = 3;
 		panel_1.add(testConnectionButton, gbc_testConnectionButton);
 
-		openFirmwareUpdaterSketchButton = new JButton("Open Updater sketch");
+		openFirmwareUpdaterSketchButton = new JButton("Upload Updater sketch");
 		openFirmwareUpdaterSketchButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				openFirmwareUpdaterSketch();
@@ -357,6 +357,7 @@ public class UpdaterJFrame extends JFrame {
 		uploadCertificatesButton.setEnabled(state);
 		addCertificateButton.setEnabled(state);
 		testConnectionButton.setEnabled(state);
+		openFirmwareUpdaterSketchButton.setEnabled(state);
 		updateFirmwareButton.setEnabled(state);
 		firmwareSelector.setEnabled(state);
 		certSelector.setEnabled(state);
@@ -404,7 +405,7 @@ public class UpdaterJFrame extends JFrame {
 	protected JComboBox<Flasher> getFirmwareSelector() {
 		return firmwareSelector;
 	}
-	protected JProgressBar getUpdateProgressBar() {
+	public static JProgressBar getUpdateProgressBar() {
 		return updateProgressBar;
 	}
 	protected JButton getRemoveCertificateButton() {
