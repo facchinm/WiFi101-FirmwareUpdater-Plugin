@@ -157,34 +157,8 @@ public class UpdaterJFrame extends JFrame {
 		gbc_refreshListButton.fill = GridBagConstraints.HORIZONTAL;
 		gbc_refreshListButton.insets = new Insets(0,0,0,0);
 		gbc_refreshListButton.gridx = 1;
-		gbc_refreshListButton.gridy = 2;
+		gbc_refreshListButton.gridy = 1;
 		panel_1.add(refreshListButton, gbc_refreshListButton);
-
-		testConnectionButton = new JButton("Test connection");
-		testConnectionButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				testConnection();
-			}
-		});
-
-		GridBagConstraints gbc_testConnectionButton = new GridBagConstraints();
-		gbc_testConnectionButton.insets = new Insets(0,0,0,0);
-		gbc_testConnectionButton.gridx = 1;
-		gbc_testConnectionButton.gridy = 3;
-		panel_1.add(testConnectionButton, gbc_testConnectionButton);
-
-		openFirmwareUpdaterSketchButton = new JButton("Upload Updater sketch");
-		openFirmwareUpdaterSketchButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				openFirmwareUpdaterSketch();
-			}
-		});
-
-		GridBagConstraints gbc_openFirmwareUpdaterSketchButton = new GridBagConstraints();
-		gbc_openFirmwareUpdaterSketchButton.insets = new Insets(0,0,0,0);
-		gbc_openFirmwareUpdaterSketchButton.gridx = 1;
-		gbc_openFirmwareUpdaterSketchButton.gridy = 1;
-		panel_1.add(openFirmwareUpdaterSketchButton, gbc_openFirmwareUpdaterSketchButton);
 
 		panel = new JPanel();
 		panel.setBorder(new TitledBorder(new LineBorder(new Color(184, 207, 229)), "2. Update firmware", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(51, 51, 51)));
@@ -356,8 +330,6 @@ public class UpdaterJFrame extends JFrame {
 	protected void setEnabledCommand(boolean state) {
 		uploadCertificatesButton.setEnabled(state);
 		addCertificateButton.setEnabled(state);
-		testConnectionButton.setEnabled(state);
-		openFirmwareUpdaterSketchButton.setEnabled(state);
 		updateFirmwareButton.setEnabled(state);
 		firmwareSelector.setEnabled(state);
 		certSelector.setEnabled(state);

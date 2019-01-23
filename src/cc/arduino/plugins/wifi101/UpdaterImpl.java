@@ -208,7 +208,15 @@ public class UpdaterImpl extends UpdaterJFrame {
 		          JOptionPane.INFORMATION_MESSAGE);
 				} catch (Exception e) {
 					e.printStackTrace();
-					JOptionPane.showMessageDialog(UpdaterImpl.this, e.getMessage(), "Upload error.", JOptionPane.ERROR_MESSAGE);
+					String[] options = {"OK", "Cancel"};
+					int x = JOptionPane.showOptionDialog(UpdaterImpl.this, e.getMessage() + fw.onFwUpdateFailureStrings(port), "Upload error", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+					if (x == 0) {
+						try {
+							fw.onFwUpdateFailure(port);
+						} catch (Exception e1) {
+							JOptionPane.showMessageDialog(UpdaterImpl.this, "Unrecoverable upload error", "Upload error", JOptionPane.ERROR_MESSAGE);
+						}
+					}
 				}
 				setEnabled(true);
 				resetProgress();

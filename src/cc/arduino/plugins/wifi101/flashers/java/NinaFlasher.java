@@ -105,10 +105,12 @@ public class NinaFlasher extends Flasher {
 			} else {
 				throw new Exception("Error validating flashed firmware");
 			}
-		} finally {
+		} catch (Exception e) {
 			if (client != null) {
 				client.close();
 			}
+			e.printStackTrace();
+			throw(e);
 		}
 	}
 
@@ -171,10 +173,11 @@ public class NinaFlasher extends Flasher {
 				written += len;
 				address += len;
 			}
-		} finally {
+		} catch (Exception e) {
 			if (client != null) {
 				client.close();
 			}
+			throw(e);
 		}
 	}
 

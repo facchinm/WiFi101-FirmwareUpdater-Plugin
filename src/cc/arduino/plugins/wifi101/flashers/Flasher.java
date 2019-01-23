@@ -109,7 +109,7 @@ public class Flasher {
 		}
 	}
 
-	public void openFirmwareUpdaterSketch(BoardPort port) throws Exception {
+	public String findFirmwareUpdaterExamplePath() {
 		LibraryList allLibraries = BaseNoGui.librariesIndexer.getInstalledLibraries();
 		String firmwareUpdaterExamplePath = "";
 		String nameToSearchFor = "";
@@ -127,44 +127,103 @@ public class Flasher {
 			  firmwareUpdaterExamplePath = lib.getInstalledFolder().getAbsolutePath() + "/" + pathToSketch;
 		  }
 		}
+		return firmwareUpdaterExamplePath;
+	}
+
+	public TargetBoard getBoard(BoardPort port) {
+		String name = port.getBoardName();
+		if (name == null) {
+			return null;
+		}
+		TargetBoard targetBoard = null;
+	    for (TargetPackage targetPackage : BaseNoGui.packages.values()) {
+	      for (TargetPlatform targetPlatform : targetPackage.getPlatforms().values()) {
+	        for (TargetBoard board : targetPlatform.getBoards().values()) {
+	          if (name.equals(board.getName())) {
+	            	targetBoard = board;
+	          }
+	        }
+	      }
+	    }
+	    return targetBoard;
+	}
+
+	public void setBoardAndPort(BoardPort port) {
+		
+		// Search all packages for this f***ing name
+		TargetBoard targetBoard = getBoard(port);
+		BaseNoGui.selectSerialPort(port.getAddress());
+		if (targetBoard != null) {
+			BaseNoGui.selectBoard(targetBoard);
+		}
+		Base.INSTANCE.onBoardOrPortChange();
+		
+	}
+
+	public void onFwUpdateFailure(BoardPort port) throws Exception {
+		if (findFirmwareUpdaterExamplePath() != "") {
+			if (getBoard(port) != null) {
+				uploadFirmwareUpdaterSketch(port);
+				// TODO: decide if we want to launch it here
+				//t.wait();
+				updateFirmware(port.getAddress());
+			} else {
+				openFirmwareUpdaterSketch(port);
+			}
+		}
+	}
+
+	public String onFwUpdateFailureStrings(BoardPort port) {
+		if (findFirmwareUpdaterExamplePath() != "") {
+			if (getBoard(port) != null) {
+				return "retry after uploading the Updater sketch?\nThis will overwrite your existing sketch";
+			} else {
+				return "open the Updater sketch?";
+			}
+		}
+		return "";
+	}
+
+	public void uploadFirmwareUpdaterSketch(BoardPort port) throws Exception {
+		String firmwareUpdaterExamplePath = findFirmwareUpdaterExamplePath();
 		if (firmwareUpdaterExamplePath != "" && port != null) {
-	
-			BaseNoGui.selectSerialPort(port.getAddress());
-			
-			// Search all packages for this f***ing name
-			String name = port.getBoardName();
 
-			TargetBoard targetBoard = null;
-		    for (TargetPackage targetPackage : BaseNoGui.packages.values()) {
-		      for (TargetPlatform targetPlatform : targetPackage.getPlatforms().values()) {
-		        for (TargetBoard board : targetPlatform.getBoards().values()) {
-		        	System.out.println(board.getName());
-		          if (name.equals(board.getName())) {
-		            	targetBoard = board;
-		          }
-		        }
-		      }
-		    }
-
-	        BaseNoGui.selectBoard(targetBoard);
-			Base.INSTANCE.onBoardOrPortChange();
-			//Base.INSTANCE.handleOpen(new File(firmwareUpdaterExamplePath));
-
+			setBoardAndPort(port);
 			setProgressBar(UpdaterImpl.getUpdateProgressBar());
 
-			progress(10, "Compling file...");
+//			Thread t = new Thread() {
+//				public void run() {
+					try {
+						progress(10, "Compling file...");
+			
+						File sketchFile = BaseNoGui.absoluteFile(firmwareUpdaterExamplePath);
+						Sketch sketch = new Sketch(sketchFile);
+				        String outputFile = new Compiler(sketch).build(progress -> {}, false);
+			
+				        progress(50, "Uploading file...");
+			
+						UploaderUtils uploader = new UploaderUtils();
+				        List<String> warnings = new ArrayList<>();
+				        boolean res = uploader.upload(sketch, null, outputFile,	false, false, warnings);
+			
+				        progress(100, "Updater uploaded!");
+					} catch (Exception e) {
+						
+					}
+				}
+//			};
+//			t.start();
+//			return t;
+//		}
+//		return null;
+	}
 
-			File sketchFile = BaseNoGui.absoluteFile(firmwareUpdaterExamplePath);
-			Sketch sketch = new Sketch(sketchFile);
-	        String outputFile = new Compiler(sketch).build(progress -> {}, false);
+	public void openFirmwareUpdaterSketch(BoardPort port) throws Exception {
 
-	        progress(50, "Uploading file...");
-
-			UploaderUtils uploader = new UploaderUtils();
-	        List<String> warnings = new ArrayList<>();
-	        boolean res = uploader.upload(sketch, null, outputFile,	false, false, warnings);
-
-	        progress(100, "Updater uploaded!");
+		String firmwareUpdaterExamplePath = findFirmwareUpdaterExamplePath();
+		if (firmwareUpdaterExamplePath != "" && port != null) {
+			setBoardAndPort(port);
+			Base.INSTANCE.handleOpen(new File(firmwareUpdaterExamplePath));
 		}
 	}
 
