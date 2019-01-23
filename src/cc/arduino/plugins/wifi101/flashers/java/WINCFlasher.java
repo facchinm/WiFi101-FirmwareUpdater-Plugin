@@ -97,10 +97,14 @@ public class WINCFlasher extends Flasher {
 				address += len;
 			}
 			progress(100, "Done!");
-		} finally {
+		} catch (Exception e) {
 			if (client != null) {
 				client.close();
 			}
+			throw(e);
+		}
+		if (client != null) {
+			client.close();
 		}
 	}
 
@@ -147,10 +151,14 @@ public class WINCFlasher extends Flasher {
 				address += len;
 			}
 			progress(100, "Done!");
-		} finally {
+		} catch (Exception e) {
 			if (client != null) {
 				client.close();
 			}
+			throw(e);
+		}
+		if (client != null) {
+			client.close();
 		}
 	}
 

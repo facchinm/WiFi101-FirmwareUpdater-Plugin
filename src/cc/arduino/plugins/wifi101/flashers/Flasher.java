@@ -160,25 +160,27 @@ public class Flasher {
 		
 	}
 
-	public void onFwUpdateFailure(BoardPort port) throws Exception {
+	public boolean onFwUpdateFailure(BoardPort port) throws Exception {
 		if (findFirmwareUpdaterExamplePath() != "") {
 			if (getBoard(port) != null) {
 				uploadFirmwareUpdaterSketch(port);
 				// TODO: decide if we want to launch it here
 				//t.wait();
 				updateFirmware(port.getAddress());
+				return true;
 			} else {
 				openFirmwareUpdaterSketch(port);
 			}
 		}
+		return false;
 	}
 
 	public String onFwUpdateFailureStrings(BoardPort port) {
 		if (findFirmwareUpdaterExamplePath() != "") {
 			if (getBoard(port) != null) {
-				return "retry after uploading the Updater sketch?\nThis will overwrite your existing sketch";
+				return "Do you want to retry after uploading the Updater sketch?\nThis will overwrite your existing sketch";
 			} else {
-				return "open the Updater sketch?";
+				return "Do you want to open the Updater sketch?";
 			}
 		}
 		return "";

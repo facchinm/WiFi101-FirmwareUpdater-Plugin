@@ -209,10 +209,14 @@ public class UpdaterImpl extends UpdaterJFrame {
 				} catch (Exception e) {
 					e.printStackTrace();
 					String[] options = {"OK", "Cancel"};
-					int x = JOptionPane.showOptionDialog(UpdaterImpl.this, e.getMessage() + fw.onFwUpdateFailureStrings(port), "Upload error", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
+					int x = JOptionPane.showOptionDialog(UpdaterImpl.this, e.getMessage() + "\n" + fw.onFwUpdateFailureStrings(port), "Upload error", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[0]);
 					if (x == 0) {
 						try {
-							fw.onFwUpdateFailure(port);
+							boolean showMessage = fw.onFwUpdateFailure(port);
+							if (showMessage) {
+								JOptionPane.showMessageDialog(UpdaterImpl.this, "The firmware has been updated!", "Success",
+							          JOptionPane.INFORMATION_MESSAGE);
+							}
 						} catch (Exception e1) {
 							JOptionPane.showMessageDialog(UpdaterImpl.this, "Unrecoverable upload error", "Upload error", JOptionPane.ERROR_MESSAGE);
 						}

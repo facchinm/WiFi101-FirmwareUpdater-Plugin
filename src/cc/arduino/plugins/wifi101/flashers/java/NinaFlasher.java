@@ -112,6 +112,9 @@ public class NinaFlasher extends Flasher {
 			e.printStackTrace();
 			throw(e);
 		}
+		if (client != null) {
+			client.close();
+		}
 	}
 
 	@Override

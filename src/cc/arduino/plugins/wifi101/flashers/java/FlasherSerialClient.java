@@ -53,7 +53,6 @@ public class FlasherSerialClient {
 			if (!port.openPort()) {
 				throw new SerialException("Error opening serial port");
 			}
-			System.out.println("Opening port!!!!");
 
 			boolean res = port.setParams(baudrate, 8, STOPBITS_1, PARITY_NONE, true, true);
 			if (!res) {
@@ -97,7 +96,6 @@ public class FlasherSerialClient {
 
 	public void close() throws SerialException {
 		try {
-			System.out.println("Closing port!!!!");
 			port.closePort();
 		} catch (Exception e) {
 			throw new SerialException(format(tr("Error opening serial port.\nClose the serial monitor (if open) or any program using port '{0}'"), port.getPortName()));
@@ -108,7 +106,7 @@ public class FlasherSerialClient {
 		sendCommand((byte) 0x99, 0x11223344, 0x55667788, null);
 		byte[] answer = waitAnswer(2000, 6, true);
 		if (answer.length != 6 || answer[0] != 'v') {
-			throw new Exception("Programmer not responding\nDo you want to " );
+			throw new Exception("Programmer not responding");
 		}
 		String version = new String(answer);
 		if (!version.equals("v10000"))
