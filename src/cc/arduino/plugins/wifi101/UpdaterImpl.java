@@ -232,6 +232,9 @@ public class UpdaterImpl extends UpdaterJFrame {
 	protected void addCertificate() {
 		String website = (String) JOptionPane.showInputDialog(this, "Enter the website to fetch SSL certificate:",
 		    "Add SSL certificate from website", JOptionPane.QUESTION_MESSAGE);
+		if (website == "" || website == null) {
+			return;
+		} 
 		if (website.startsWith("http://")) {
 			JOptionPane.showMessageDialog(UpdaterImpl.this, "Sorry \"http://\" protocol doesn't support SSL",
 			    "Invalid URL error.", JOptionPane.ERROR_MESSAGE);

@@ -42,6 +42,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import org.apache.commons.lang3.StringUtils;
+
+import java.security.KeyStore;
 import java.security.MessageDigest;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
@@ -143,7 +145,10 @@ public class NinaFlasher extends Flasher {
 
 				// Pick the latest certificate (that should be the root cert)
 				X509Certificate x509 = (X509Certificate) certificates[certificates.length - 1];
-				pem = convertToPem(x509) + "\n" + pem;
+				// only add the certificate if not already contained in running image
+				if (!isCertificateAlreadyInChain(x509)) {
+					pem = convertToPem(x509) + "\n" + pem;
+				}
 			}
 
 			byte[] pemArray = pem.getBytes();
@@ -182,6 +187,51 @@ public class NinaFlasher extends Flasher {
 			}
 			throw(e);
 		}
+		if (client != null) {
+			client.close();
+		}
+	}
+
+	private boolean isCertificateAlreadyInChain(X509Certificate cert) throws Exception {
+		
+		File fw = openFirmwareFile();
+		File trustStore = new File (fw.getParentFile(), "trustStore.jks");
+		KeyStore ks = KeyStore.getInstance( "JKS" );
+		InputStream s = new FileInputStream( trustStore );
+		ks.load( s, "arduino".toCharArray() );
+
+		Enumeration en = ks.aliases();
+		String ALIAS = "" ;
+
+		X509Certificate signingcert = null;
+
+		while (en.hasMoreElements())
+		{
+		    X509Certificate storecert = null;
+		    String ali = (String)en.nextElement() ;
+		    if(ks.isCertificateEntry(ali))
+		     {
+		        storecert = (X509Certificate)ks.getCertificate(ali);
+		        if( (storecert.getIssuerDN().getName()).equals(cert.getIssuerDN().getName()))
+		        {
+		         try{
+		            System.out.println("Found matching issuer DN cert in keystore:\r\nChecking signature on cert ...") ;
+		            cert.verify(storecert.getPublicKey()) ;
+		            System.out.println("Signature verified on certificate") ;
+		            signingcert = storecert;
+		            return true;
+		          }
+		         catch(Exception exc){
+		            System.out.println("Failed to verify signature on certificate with matching cert DN");
+		            return false;
+		          }
+		        }           
+		    }
+		    else
+		     if(ks.isKeyEntry(ali))
+		        System.out.println(ali + "   **** key entry ****");
+		}
+		return false;
 	}
 
 	protected static String convertToPem(X509Certificate cert) {
