@@ -59,6 +59,7 @@ import javax.swing.JProgressBar;
 public class NinaFlasher extends Flasher {
 
 	public byte[] md5Checksum;
+	private boolean fwHasJustBeenUpdated = false;
 
 	public NinaFlasher(String _modulename, String _version, String _filename, boolean _certavail, int _baudrate, ArrayList<String> _compatibleBoard) {
 		super(_modulename, _version, _filename, _certavail, _baudrate, _compatibleBoard);
@@ -117,6 +118,7 @@ public class NinaFlasher extends Flasher {
 		if (client != null) {
 			client.close();
 		}
+		fwHasJustBeenUpdated = true;
 	}
 
 	@Override
@@ -146,8 +148,10 @@ public class NinaFlasher extends Flasher {
 				// Pick the latest certificate (that should be the root cert)
 				X509Certificate x509 = (X509Certificate) certificates[certificates.length - 1];
 				// only add the certificate if not already contained in running image
-				if (!isCertificateAlreadyInChain(x509)) {
+				if (!isCertificateAlreadyInChain(x509) || !fwHasJustBeenUpdated) {
 					pem = convertToPem(x509) + "\n" + pem;
+				} else {
+					System.out.println("Root certificate for " + url + " skipped, already present");
 				}
 			}
 
@@ -215,21 +219,15 @@ public class NinaFlasher extends Flasher {
 		        if( (storecert.getIssuerDN().getName()).equals(cert.getIssuerDN().getName()))
 		        {
 		         try{
-		            System.out.println("Found matching issuer DN cert in keystore:\r\nChecking signature on cert ...") ;
 		            cert.verify(storecert.getPublicKey()) ;
-		            System.out.println("Signature verified on certificate") ;
 		            signingcert = storecert;
 		            return true;
 		          }
 		         catch(Exception exc){
-		            System.out.println("Failed to verify signature on certificate with matching cert DN");
 		            return false;
 		          }
 		        }           
 		    }
-		    else
-		     if(ks.isKeyEntry(ali))
-		        System.out.println(ali + "   **** key entry ****");
 		}
 		return false;
 	}
